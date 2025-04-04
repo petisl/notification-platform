@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: alaje-notification
+  name: alaje-notification
+#  namespace: hr-production
+spec:
+  replicas: 2
+  minReadySeconds: 45
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: alaje-notification
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: alaje-notification
+    spec:
+      containers:
+      - env:
+        - name: JASYPT_PWD
+          value: P@ssw0rd2020
+        - name: RABBIT_USERNAME
+          value: hydrogenhr
+        - name: RABBIT_PASSWORD
+          value: Batsignal30$
+        - name: SFTP_USER
+          value: hydrogenhr
+        - name: SFTP_PASSWORD
+          value: Batsignal30$
+        - name: TZ
+          value: Africa/Lagos
+        image: <IMAGE>
+        imagePullPolicy: Always
+        name: alaje-notification
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
