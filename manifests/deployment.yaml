@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: alaje-notification
-  name: alaje-notification
+    app: leasing-notification
+  name: leasing-notification
 #  namespace: hr-production
 spec:
   replicas: 2
@@ -11,7 +11,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: alaje-notification
+      app: leasing-notification
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       labels:
-        app: alaje-notification
+        app: leasing-notification
     spec:
       containers:
       - env:
@@ -38,6 +38,6 @@ spec:
           value: Africa/Lagos
         image: <IMAGE>
         imagePullPolicy: Always
-        name: alaje-notification
+        name: leasing-notification
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
