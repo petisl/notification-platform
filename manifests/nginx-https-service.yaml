@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-alaje-notification
+  name: ingress-leasing-notification
 spec:
   rules:
-    - host: api.notification.alajecollection.com
+    - host: staging.notification.hrm.c-ileasing.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: alaje-notification
+                name: leasing-notification
                 port:
                   number: 8080
   ingressClassName: nginx
@@ -19,23 +19,23 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-alaje-notification
+  name: ingress-leasing-notification
   annotations:
    cert-manager.io/issuer: letsencrypt-nginx
 spec:
   tls:
    - hosts:
-     - api.notification.alajecollection.com
+     - staging.notification.hrm.c-ileasing.com
      secretName: letsencrypt-nginx-notification
   rules:
-    - host: api.notification.alajecollection.com
+    - host: staging.notification.hrm.c-ileasing.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: alaje-notification
+                name: leasing-notification
                 port:
                   number: 443
   ingressClassName: nginx
