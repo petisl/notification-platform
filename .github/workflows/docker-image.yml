@@ -4,6 +4,11 @@ on:
   push:
     branches: [dev]
 
+env:
+  ACR_REGISTRY: cileasinghr.azurecr.io
+  IMAGE_NAME: notification
+  SHORT_SHA: $(echo $GITHUB_SHA | head -c7)  # Reusable short commit hash
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -12,38 +17,67 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Build and push to Azure Container Registry (ACR)
+    # Cache Docker layers to speed up builds
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: docker-${{ runner.os }}-${{ env.SHORT_SHA }}
+        restore-keys: docker-${{ runner.os }}-
+
+    # Build and push to ACR with BuildKit
     - name: Build and Push Docker Image
       run: |
-        docker build -t cileasinghr.azurecr.io/notification:latest .
-        echo "${{ secrets.ACR_PASSWORD }}" | docker login cileasinghr.azurecr.io --username "${{ secrets.ACR_USERNAME }}" --password-stdin
-        docker push cileasinghr.azurecr.io/notification:latest
+        docker buildx create --use
+        docker buildx build \
+          --tag ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }} \
+          --tag ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+          --cache-from type=local,src=/tmp/.buildx-cache \
+          --cache-to type=local,dest=/tmp/.buildx-cache-new \
+          --push \
+          .
+        rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      env:
+        DOCKER_BUILDKIT: 1
 
-    # Deploy to remote server using SSH with password auth
-    - name: Deploy via SSH (Password Auth)
+    # Deploy to remote server with fail-fast checks
+    - name: Deploy via SSH
       uses: appleboy/ssh-action@v1
       with:
         host: 51.124.123.164
         username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}  # Password instead of key
+        password: ${{ secrets.SSH_PASSWORD }}
         port: 22
+        script_stop: true  # Fail fast on script errors
         script: |
-          # Log in to Azure Container Registry (ACR)
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login cileasinghr.azurecr.io --username "${{ secrets.ACR_USERNAME }}" --password-stdin
+          set -e  # Exit immediately on error
 
-          # Stop and remove old container
-          docker stop notification-container || true
-          docker rm notification-container || true
+          # Login to ACR
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_REGISTRY }} \
+            --username "${{ secrets.ACR_USERNAME }}" \
+            --password-stdin
 
-          # Pull the latest image
-          docker pull cileasinghr.azurecr.io/notification:latest
+          # Cleanup old container
+          if docker inspect notification-container >/dev/null 2>&1; then
+            docker stop notification-container || true
+            docker rm notification-container || true
+          fi
 
-          # Run the new container
+          # Pull and deploy
+          docker pull ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
+          
           docker run -d \
             --name notification-container \
-            -p 80:8084 \
+            --publish 80:8084 \
             --restart unless-stopped \
-            cileasinghr.azurecr.io/notification:latest
+            --log-driver json-file \
+            --log-opt max-size=10m \
+            ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
 
-          # Verify it's running
-          docker ps
+          # Health check (adjust endpoint as needed)
+          sleep 10
+          if ! docker ps --filter "name=notification-container" --format "{{.Status}}" | grep -q "Up"; then
+            echo "::error::Container failed to start!"
+            docker logs notification-container
+            exit 1
+          fi
