@@ -7,7 +7,6 @@ on:
 env:
   ACR_REGISTRY: cileasinghr.azurecr.io
   IMAGE_NAME: notification
-  SHORT_SHA: $(echo $GITHUB_SHA | head -c7)  # Reusable short commit hash
 
 jobs:
   build-and-deploy:
@@ -16,6 +15,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    # Set the short SHA as an output variable
+    - name: Set SHORT_SHA
+      id: set-short-sha
+      run: |
+        SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
+        echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
+        echo "Using commit SHA: ${SHORT_SHA}"
 
     # Cache Docker layers to speed up builds
     - name: Cache Docker layers
@@ -35,6 +42,10 @@ jobs:
     # Build and push to ACR with BuildKit
     - name: Build and Push Docker Image
       run: |
+        echo "Building image with tags:"
+        echo "- ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}"
+        echo "- ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+        
         docker buildx create --use
         docker buildx build \
           --tag ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }} \
@@ -47,7 +58,7 @@ jobs:
       env:
         DOCKER_BUILDKIT: 1
 
-    # Deploy to remote server with fail-fast checks
+    # Rest of your deployment steps...
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1
       with:
@@ -55,22 +66,18 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
         port: 22
-        script_stop: true  # Fail fast on script errors
+        script_stop: true
         script: |
-          set -e  # Exit immediately on error
-
-          # Login to ACR
+          set -e
           echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_REGISTRY }} \
             --username "${{ secrets.ACR_USERNAME }}" \
             --password-stdin
 
-          # Cleanup old container
           if docker inspect notification-container >/dev/null 2>&1; then
             docker stop notification-container || true
             docker rm notification-container || true
           fi
 
-          # Pull and deploy
           docker pull ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
           
           docker run -d \
@@ -81,7 +88,6 @@ jobs:
             --log-opt max-size=10m \
             ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
 
-          # Health check (adjust endpoint as needed)
           sleep 10
           if ! docker ps --filter "name=notification-container" --format "{{.Status}}" | grep -q "Up"; then
             echo "::error::Container failed to start!"
