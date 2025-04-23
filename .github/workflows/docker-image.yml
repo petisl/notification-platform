@@ -82,7 +82,7 @@ jobs:
           
           docker run -d \
             --name notification-container \
-            --publish 8098:8098 \
+            --publish 8087:8087\
             --restart unless-stopped \
             --log-driver json-file \
             --log-opt max-size=10m \
