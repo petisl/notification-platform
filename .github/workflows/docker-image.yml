@@ -25,6 +25,13 @@ jobs:
         key: docker-${{ runner.os }}-${{ env.SHORT_SHA }}
         restore-keys: docker-${{ runner.os }}-
 
+    # Login to ACR before building
+    - name: Login to Azure Container Registry
+      run: |
+        echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_REGISTRY }} \
+          --username "${{ secrets.ACR_USERNAME }}" \
+          --password-stdin
+
     # Build and push to ACR with BuildKit
     - name: Build and Push Docker Image
       run: |
