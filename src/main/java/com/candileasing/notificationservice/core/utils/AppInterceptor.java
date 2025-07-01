@@ -11,7 +11,7 @@ import java.util.Base64;
 public class AppInterceptor {
 
     public static String authHeader() {
-        String plainAuth = "hydrogenhr-auth-service" + ":" + "password";
+        String plainAuth = "candileasinghr-auth-service" + ":" + "password";
         byte[] encodedAuth = Base64.getEncoder().encode(plainAuth.getBytes());
         return "Basic " + new String(encodedAuth);
     }

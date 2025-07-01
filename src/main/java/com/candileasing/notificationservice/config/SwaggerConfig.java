@@ -48,11 +48,11 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfo(
                 applicationName.replaceAll("-", " ").toUpperCase(),
-                "Backend API powering the HydrogenHR Notification Services",
+                "Backend API powering the CAndILeasingHR Notification Services",
                 "v0.0.1",
                 "Terms of service",
-                new Contact("John Adeshola", "https://hydrogenhr.com", "timadeshola@gmail.com"),
-                "License of API", "licensce", Collections.emptyList());
+                new Contact("John Adeshola", "https://candileasing.com", "timadeshola@gmail.com"),
+                "License of API", "license", Collections.emptyList());
     }
 
     @Bean
