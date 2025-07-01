@@ -67,7 +67,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        Resource resource = new ClassPathResource("hydrogenhr-public-key.txt");
+        Resource resource = new ClassPathResource("candileasinghr-public-key.txt");
         String publicKey;
         try {
             publicKey = IOUtils.toString(resource.getInputStream());
