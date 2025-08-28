@@ -18,14 +18,14 @@ public class RabbitmqConsumerService {
     private final EmailService emailService;
     private final PushNotifyService pushNotifyService;
 
-    @RabbitListener(queues = "email-notification")
+    @RabbitListener(queues = "cileasing-email-notification")
     public void consumeEmail(MailRequest model) {
         log.info("Received message as generic: {}", AppUtils.toJson(model));
         emailService.sendEmail(model);
         log.info("received email notification");
     }
 
-    @RabbitListener(queues = "push-notification")
+    @RabbitListener(queues = "cileasing-push-notification")
     public void consumePushNotify(NotifyResponse model) {
         pushNotifyService.notifier(model);
         log.info("Received message as generic: {}", AppUtils.toJson(model));

@@ -18,6 +18,7 @@ public class RabbitmqProducerService {
 
     public void sendEmail(MailRequest model) {
         log.info("Sending email message...");
+        log.info("exchange property: {} :{}", rabbitMqProperty.getEmailExchange(), rabbitMqProperty.getRoutingKey());
         rabbitTemplate.convertAndSend(rabbitMqProperty.getEmailExchange(), rabbitMqProperty.getRoutingKey(), model);
         log.info("email notification sent!!");
     }
