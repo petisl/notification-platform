@@ -2,7 +2,7 @@ name: Deploy Dev
 
 on:
   push:
-    branches: [dev]
+    branches: [prod]
 
 env:
   ACR_REGISTRY: cileasinghr.azurecr.io
@@ -62,7 +62,7 @@ jobs:
     - name: Deploy via SSH
       uses: appleboy/ssh-action@v1
       with:
-        host: 51.124.123.164
+        host: 172.211.109.150
         username: ${{ secrets.SSH_USERNAME }}
         password: ${{ secrets.SSH_PASSWORD }}
         port: 22
