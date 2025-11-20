@@ -5,125 +5,46 @@
 
 <head>
     <title></title>
-    <!--[if !mso]><!-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!--<![endif]-->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style type="text/css">
         #outlook a { padding: 0; }
-        body {
-            margin: 0; padding: 0;
-            -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;
-        }
-        table, td {
-            border-collapse: collapse;
-            mso-table-lspace: 0pt; mso-table-rspace: 0pt;
-        }
-        img {
-            border: 0; height: auto; line-height: 100%;
-            outline: none; text-decoration: none;
-            -ms-interpolation-mode: bicubic;
-        }
+        body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
         p { display: block; margin: 13px 0; }
-    </style>
-
-    <!--[if mso]>
-    <noscript>
-        <xml>
-            <o:OfficeDocumentSettings>
-                <o:AllowPNG/>
-                <o:PixelsPerInch>96</o:PixelsPerInch>
-            </o:OfficeDocumentSettings>
-        </xml>
-    </noscript>
-    <![endif]-->
-
-    <!--[if lte mso 11]>
-    <style type="text/css">
-        .mj-outlook-group-fix { width:100% !important; }
-    </style>
-    <![endif]-->
-
-    <style type="text/css">
-        @media only screen and (min-width:480px) {
-            .mj-column-per-100 { width: 100% !important; max-width: 100%; }
-        }
-    </style>
-
-    <style media="screen and (min-width:480px)">
-        .moz-text-html .mj-column-per-100 { width: 100% !important; max-width: 100%; }
-    </style>
-
-    <style type="text/css">
-        @media only screen and (max-width:480px) {
-            table.mj-full-width-mobile { width: 100% !important; }
-            td.mj-full-width-mobile { width: auto !important; }
-        }
     </style>
 </head>
 
 <body style="word-spacing:normal;background-color:#f4f2ef;padding:15px;">
 <div style="background-color:#f4f2ef;">
 
-    <!-- HEADER SPACE -->
-    <div style="margin:0 auto;max-width:600px;">
-        <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
-            <tr>
-                <td style="padding:20px 0;text-align:center;"></td>
-            </tr>
-        </table>
-    </div>
-
     <!-- MAIN CARD -->
     <div style="background:#ffffff;margin:0 auto;border-radius:15px;max-width:600px;">
         <table align="center" role="presentation" style="width:100%;border-radius:15px;">
             <tr>
-                <td style="padding:20px 0;text-align:center;">
+                <td style="padding:10px 0 0 0;text-align:left;"> <!-- reduced padding -->
 
                     <div class="mj-column-per-100" style="display:inline-block;width:100%;text-align:left;">
                         <table role="presentation" width="100%">
+                            <!-- LOGO (top-left) -->
                             <tr>
-                                <td style="padding:10px 25px;padding-left:30px;">
-                                    <img src="" width="50" style="width:50px;height:auto;" />
+                                <td style="padding:10px 25px 0 25px;">
+                                    <img th:src="@{/image/cileasing_logo.jpeg}"
+                                         alt="C & I Leasing Logo"
+                                         width="70"
+                                         style="width:70px;height:auto;display:block;" />
                                 </td>
                             </tr>
 
+                            <!-- CONTENT -->
                             <tr>
-                                <td style="padding:10px 25px;padding-top:50px;padding-bottom:40px;">
-                                    <div style="font-family:sans-serif;font-size:15px;line-height:1.5;" layout:fragment="content"></div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- BUTTON -->
-    <div style="margin:0 auto;max-width:600px;">
-        <table align="center" role="presentation" style="width:100%;">
-            <tr>
-                <td style="padding:20px 0;text-align:center;">
-
-                    <div class="mj-column-per-100" style="display:inline-block;width:100%;">
-                        <table role="presentation" width="100%">
-                            <tr>
-                                <td align="center" style="padding:19.5px;">
-                                    <table role="presentation" style="border-collapse:separate;width:200px;">
-                                        <tr>
-                                            <td align="center" bgcolor="#223c86"
-                                                style="border-radius:4px;height:50px;background:#223c86;">
-                                                <a th:href="${url}"
-                                                   style="display:inline-block;width:150px;color:white;font-family:sans-serif;
-                                                          font-size:14px;padding:10px 25px;text-decoration:none;border-radius:4px;"
-                                                   layout:fragment="button-title" target="_blank">Continue</a>
-                                            </td>
-                                        </tr>
-                                    </table>
+                                <td style="padding:20px 25px 40px 25px;">
+                                    <div style="font-family:sans-serif;font-size:15px;line-height:1.5;"
+                                         layout:fragment="content">
+                                    </div>
                                 </td>
                             </tr>
                         </table>
@@ -134,13 +55,13 @@
         </table>
     </div>
 
+    <!-- FOOTER SECTION -->
     <div style="margin:0 auto;max-width:600px;">
         <table align="center" role="presentation" style="width:100%;">
             <tr>
-                <td style="padding:20px 0;text-align:center;">
-
-                    <div class="mj-column-per-100" style="display:inline-block;width:100%;">
-                        <table role="presentation" width="100%">
+                <td style="padding:10px 0;text-align:center;"> <!-- reduced padding -->
+                    <div class="mj-column-per-100">
+                        <table width="100%">
                             <tr>
                                 <td style="padding:10px 25px;text-align:left;">
                                     <div style="font-family:sans-serif;font-size:13px;color:#7f8ba4;line-height:1.5;">
@@ -152,7 +73,6 @@
                             </tr>
                         </table>
                     </div>
-
                 </td>
             </tr>
         </table>
@@ -161,10 +81,9 @@
     <div style="margin:0 auto;max-width:600px;">
         <table align="center" role="presentation" style="width:100%;">
             <tr>
-                <td style="padding:20px 0;text-align:center;">
-
-                    <div class="mj-column-per-100" style="display:inline-block;width:100%;">
-                        <table role="presentation" width="100%">
+                <td style="padding:10px 0;text-align:center;"> <!-- reduced padding -->
+                    <div class="mj-column-per-100">
+                        <table width="100%">
                             <tr>
                                 <td style="padding:10px 25px;text-align:left;">
                                     <div style="font-family:sans-serif;font-size:13px;color:#7f8ba4;">
@@ -174,7 +93,6 @@
                             </tr>
                         </table>
                     </div>
-
                 </td>
             </tr>
         </table>
