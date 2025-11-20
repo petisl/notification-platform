@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/template-layout.html}" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<!-- Email body content -->
+<div class="bottom" layout:fragment="content"
+     th:utext="|Thank you for signing up, ${name}. <br/>
+     To confirm your account, click the button below:|">
+</div>
+
+<!-- Button title with URL -->
+<a layout:fragment="button-title"
+   th:href="@{|${url}${token}|}"
+   style="display:inline-block;
+          padding:12px 20px;
+          background-color:#4CAF50;
+          color:white;
+          text-decoration:none;
+          border-radius:4px;
+          font-weight:bold;">
+    Verify Account
+</a>
+
+</html>
