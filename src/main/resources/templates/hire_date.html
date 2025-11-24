@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/template-layout.html}"
+      xmlns:th="http://www.w3.org/1999/xhtml">
+
+<div class="bottom" layout:fragment="content" style="font-family: Arial, sans-serif;">
+
+    <p>Hi <span th:text="${displayName}">User</span>,</p>
+
+    <p>
+        Here are the employees celebrating their hire date anniversary today:
+    </p>
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+        <tr>
+            <th style="border: 1px solid #ddd; padding: 8px;">Name</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Email</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Staff ID</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Company</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Department</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Position</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">Years of Service</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${hireDateUsers}">
+            <td style="border: 1px solid #ddd; padding: 8px;" th:text="${user.hireCelebrantName}">John Doe</td>
+            <td style="border: 1px solid #ddd; padding: 8px;" th:text="${user.hireCelebrantEmail}">john.doe@example.com</td>
+            <td style="border: 1px solid #ddd; padding: 8px;" th:text="${user.hireCelebrantStaffId}">12345</td>
+            <td style="border: 1px solid #ddd; padding: 8px;" th:text="${user.hireCompanyName}">Acme Corp</td>
+            <td style="border: 1px solid #ddd; padding: 8px;" th:text="${user.hireCelebrantDepartmentName}">HR</td>
+            <td style="border: 1px solid #ddd; padding: 8px;" th:text="${user.hireCelebrantPositionName}">Manager</td>
+            <td style="border: 1px solid #ddd; padding: 8px;" th:text="${user.hireCelebrantYearsOfService}">5</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p style="margin-top: 20px;">
+        Congratulations to our employees on their work anniversary! 🎉
+    </p>
+
+</div>
+
+</html>

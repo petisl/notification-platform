@@ -9,15 +9,15 @@
     <p>Hi <span th:text="${name}">User</span>,</p>
 
     <p>
-        You requested a password reset for your C and I Leasing account.
+        <span th:text="${username}">The employee</span> from
+        <span th:text="${userCompanyName}">the company</span>
+        has identified you as their <strong>previous employer</strong>.
         <br/><br/>
-        If you did not initiate this request, you can safely ignore this email.
-        <br/><br/>
-        To reset your password, click the button below:
+        Please help complete their employment verification by answering a few background check questions:
     </p>
 
     <p style="margin-top: 20px; margin-bottom: 20px;">
-        <a th:href="@{|${url}${token}|}"
+        <a th:href="@{|${url}${automatedBackgroundCheckType}&token=${backgroundCheckToken}|}"
            style="display:inline-block;
                   padding:12px 20px;
                   background-color:#223c86;
@@ -25,14 +25,14 @@
                   text-decoration:none;
                   border-radius:4px;
                   font-weight:bold;">
-            Reset Password
+            Begin Previous Employer Check
         </a>
     </p>
 
     <p>
-        Or copy this link and paste it into your browser:
+        Or copy and paste this link into your browser:
         <br/>
-        <span th:text="@{|${url}${token}|}"></span>
+        <span th:text="@{|${url}${automatedBackgroundCheckType}&token=${backgroundCheckToken}|}"></span>
     </p>
 
 </div>
