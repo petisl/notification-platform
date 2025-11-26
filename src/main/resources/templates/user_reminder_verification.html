@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{/layouts/template-layout.html}"
+      xmlns:th="http://www.w3.org/1999/xhtml">
+
+<div class="bottom" layout:fragment="content">
+
+    <p>Hi <span th:text="${name}">User</span>,</p>
+
+    <p>
+        This is a friendly reminder to complete your onboarding on the
+        <strong>C and I Leasing Human Resources Management Platform.</strong>
+        <br/><br/>
+        To continue your onboarding, click the button below:
+    </p>
+
+    <p style="margin-top: 20px; margin-bottom: 20px;">
+        <a th:href="@{|${url}|}"
+           style="display:inline-block;
+                  padding:12px 20px;
+                  background-color:#223c86;
+                  color:white;
+                  text-decoration:none;
+                  border-radius:4px;
+                  font-weight:bold;">
+            Continue Onboarding
+        </a>
+    </p>
+
+    <p>
+        Or copy this link and paste it into your browser:
+        <br/>
+        <span th:text="@{|${url}|}"></span>
+    </p>
+
+</div>
+
+</html>
