@@ -1,96 +1,69 @@
-name: Deploy Dev
+# This is a basic workflow to help you get started with Actions
 
+name: petisl-notification
+
+# Controls when the workflow will run
 on:
+  # Triggers the workflow on push or pull request events but only for the develop branch
   push:
-    branches: [prod]
+    branches: [ prod ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 
 env:
-  ACR_REGISTRY: cileasinghr.azurecr.io
-  IMAGE_NAME: notification
-
+  IMAGE_TAG: $(echo $GITHUB_SHA | head -c7)
+  DOCR_ENDPOINT: "registry.digitalocean.com/petisl/petisl-notification"
+  DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+  PROJECT_NAME: "petisl-notification"
+  CLUSTER_NAME: "petisl-test-cluster"
+  REGION: "LON1"
+  REPO_NAME: petisl-notification
+  
 jobs:
-  build-and-deploy:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    # Set the short SHA as an output variable
-    - name: Set SHORT_SHA
-      id: set-short-sha
-      run: |
-        SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-        echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
-        echo "Using commit SHA: ${SHORT_SHA}"
-
-    # Cache Docker layers to speed up builds
-    - name: Cache Docker layers
-      uses: actions/cache@v3
-      with:
-        path: /tmp/.buildx-cache
-        key: docker-${{ runner.os }}-${{ env.SHORT_SHA }}
-        restore-keys: docker-${{ runner.os }}-
-
-    # Login to ACR before building
-    - name: Login to Azure Container Registry
-      run: |
-        echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_REGISTRY }} \
-          --username "${{ secrets.ACR_USERNAME }}" \
-          --password-stdin
-
-    # Build and push to ACR with BuildKit
-    - name: Build and Push Docker Image
-      run: |
-        echo "Building image with tags:"
-        echo "- ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}"
-        echo "- ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-        
-        docker buildx create --use
-        docker buildx build \
-          --tag ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }} \
-          --tag ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-          --cache-from type=local,src=/tmp/.buildx-cache \
-          --cache-to type=local,dest=/tmp/.buildx-cache-new \
-          --push \
-          .
-        rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      env:
-        DOCKER_BUILDKIT: 1
-
-    # Rest of your deployment steps...
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1
-      with:
-        host: 172.211.109.150
-        username: ${{ secrets.SSH_USERNAME }}
-        password: ${{ secrets.SSH_PASSWORD }}
-        port: 22
-        script_stop: true
-        script: |
-          set -e
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ env.ACR_REGISTRY }} \
-            --username "${{ secrets.ACR_USERNAME }}" \
-            --password-stdin
-
-          if docker inspect notification-container >/dev/null 2>&1; then
-            docker stop notification-container || true
-            docker rm notification-container || true
-          fi
-
-          docker pull ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3                 
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           
-          docker run -d \
-            --name notification-container \
-            --publish 8087:8087\
-            --restart unless-stopped \
-            --log-driver json-file \
-            --log-opt max-size=10m \
-            ${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.SHORT_SHA }}
+      - uses: ShiftLeftSecurity/scan-action@master
+        with:
+          type: "credscan,java"
+        env:
+          WORKSPACE: https://github.com/${{ github.repository }}/blob/${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          sleep 10
-          if ! docker ps --filter "name=notification-container" --format "{{.Status}}" | grep -q "Up"; then
-            echo "::error::Container failed to start!"
-            docker logs notification-container
-            exit 1
-          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: reports
+        
+      - name: Build container image
+        run: docker build --rm -t $DOCR_ENDPOINT:$(echo $GITHUB_SHA | head -c7) .
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 1200
+        
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push $DOCR_ENDPOINT:$(echo $GITHUB_SHA | head -c7)
+        
+      - name: Update deployment file
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|registry.digitalocean.com/petisl/petisl-notification:'${TAG}'|' $GITHUB_WORKSPACE/manifests/deployment.yaml
+        
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 $CLUSTER_NAME
+        
+      - name: Deploy to DigitalOcean Kubernetes
+        run: |
+          kubectl apply -f $GITHUB_WORKSPACE/manifests/deployment.yaml
+          kubectl apply -f $GITHUB_WORKSPACE/manifests/service.yaml
+          kubectl apply -f $GITHUB_WORKSPACE/manifests/ingress-https.yaml
