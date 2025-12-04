@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-leasing-notification
+  name: ingress-petisl-notification
 spec:
   rules:
-    - host: staging.notification.hrm.c-ileasing.com
+    - host: api-test.notification.petisl.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: leasing-notification
+                name: petisl-notification
                 port:
                   number: 8080
   ingressClassName: nginx
@@ -19,23 +19,23 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: ingress-leasing-notification
+  name: ingress-petisl-notification
   annotations:
    cert-manager.io/issuer: letsencrypt-nginx
 spec:
   tls:
    - hosts:
-     - staging.notification.hrm.c-ileasing.com
+     - api-test.notification.petisl.com
      secretName: letsencrypt-nginx-notification
   rules:
-    - host: staging.notification.hrm.c-ileasing.com
+    - host: api-test.notification.petisl.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: leasing-notification
+                name: petisl-notification
                 port:
                   number: 443
   ingressClassName: nginx
