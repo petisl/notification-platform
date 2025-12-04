@@ -21,7 +21,7 @@
 		<jasypt.version>3.0.2</jasypt.version>
 		<modelmapper.version>2.3.9</modelmapper.version>
 		<apache-commons.lang3.version>3.11</apache-commons.lang3.version>
-		<springfox.version>2.9.2</springfox.version>
+		<springfox.version>2.10.0</springfox.version>
 		<flyway.version>6.5.7</flyway.version>
 		<flyway.user>root</flyway.user>
 		<flyway.password>password</flyway.password>
