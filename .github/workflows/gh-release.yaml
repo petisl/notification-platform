@@ -1,0 +1,57 @@
+name: Release Prod Branch
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed to get all tags for version detection
+
+      - name: Get previous release version
+        id: get_version
+        run: |
+          # Get the latest release tag starting with 'v'
+          LATEST_TAG=$(git describe --tags --match 'v*' --abbrev=0 2>/dev/null || echo "v0.0.0")
+          
+          # Extract version numbers
+          if [[ $LATEST_TAG =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            MAJOR=${BASH_REMATCH[1]}
+            MINOR=${BASH_REMATCH[2]}
+            PATCH=${BASH_REMATCH[3]}
+          else
+            MAJOR=0
+            MINOR=1
+            PATCH=0
+          fi
+          
+          # Increment patch version (change to MINOR for minor version bumps)
+          NEW_MINOR=$((MINOR + 1))
+          NEW_VERSION="v$MAJOR.$NEW_MINOR.0"
+          
+          echo "Previous version: $LATEST_TAG"
+          echo "New version: $NEW_VERSION"
+          
+          # Set outputs for GitHub Actions
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "previous_version=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.new_version }}
+          release_name: Release ${{ steps.get_version.outputs.new_version }}
+          body: |
+            Automated release from dev branch
+            
+            Previous version: ${{ steps.get_version.outputs.previous_version }}
+          draft: false
+          prerelease: false
