@@ -4,7 +4,7 @@ metadata:
   labels:
     app: petisl-notification
   name: petisl-notification
-#  namespace: hr-production
+  # namespace: hr-production
 spec:
   replicas: 2
   minReadySeconds: 45
@@ -13,21 +13,30 @@ spec:
     matchLabels:
       app: petisl-notification
   strategy:
+    type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
-    type: RollingUpdate
   template:
     metadata:
       labels:
         app: petisl-notification
     spec:
       containers:
-      - env:
-        - name: TZ
-          value: Africa/Lagos
+      - name: petisl-notification
         image: <IMAGE>
         imagePullPolicy: Always
-        name: petisl-notification
-      restartPolicy: Always
+        env:
+        - name: TZ
+          value: "Africa/Lagos"
+        envFrom:
+        - secretRef:
+            name: mysqldb-user-secret
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
       terminationGracePeriodSeconds: 30
